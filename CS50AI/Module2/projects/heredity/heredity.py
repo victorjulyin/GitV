@@ -156,38 +156,44 @@ def joint_probability(people, one_gene, two_genes, have_trait):
             data['trait'] = dict()
 
     # names that we won't calculate the conditional probability of gene or trait for 
-    names_to_exclude = {}
+    names_to_exclude = set()
+
+    # add unconditional probabilities if no information about parents
+    for name, data in new_people.items():
+        if data['mother'] is None or data['father'] is None:
+            names_to_exclude.add(name)
+            print(f'Adding gene unconditional probabilities for {name} (no parents info).')
+            for k, v in PROBS['gene'].items():
+                data['gene'][k] = v
 
     # calculate probabilities of genes for people who has the info about trait
     for name, data in new_people.items():
         trait_value = data['trait']
         if trait_value != {}:
-            print(f'Adding gene probabilities basing on "Trait" for {name}.')
+            names_to_exclude.add(name)
+            print(f'Adding gene unconditional probabilities for {name} (has Trait info).')
             for gene, trait in PROBS['trait'].items():
                 data['gene'][gene] = trait[trait_value]
 
-    # add unconditional probabilities if no information about parents and no trait information
-    for name, data in new_people.items():
-        if (data['mother'] is None or data['father'] is None) and data['trait'] == {}:
-            print(f'Adding gene unconditional probabilities for {name}.')
-            for k, v in PROBS['gene'].items():
-                data['gene'][k] = v
+    # loop over people who don't have any gene info at the moment
+    people_to_calc = {i for i in new_people if i not in names_to_exclude}
+    for name in people_to_calc:
+        # list of genes to loop over
+        genes = sorted(PROBS['gene'].keys())
 
-    print(new_people)
+        mother = new_people[name]['mother']
+        father = new_people[name]['father']
 
-#    print('one_gene')
- #   print(one_gene)
-  #  set()
+        mother_genes = new_people[mother]['gene']
+        father_genes = new_people[father]['gene']
 
-#    print('two_genes')
- #   print(two_genes)
-  #  set()
+        for k1, v1 in mother_genes.items():
+            for k2, v2 in father_genes.items():
+                mother_passes_gene = abs(k1 / 2 - PROBS["mutation"])
+                father_passes_gene = abs(k2 / 2 - PROBS["mutation"])
 
-#    print('have_trait')
- #   print(have_trait)
-  #  {'James'}
-
-
+                # Then necessary to multiply these probabilities with probabilities of these exactly genes 
+                # and after that calculate Trait basing on these final probabilities
 
     raise NotImplementedError
 
