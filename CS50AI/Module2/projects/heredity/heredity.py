@@ -1,6 +1,7 @@
 import csv
 import itertools
 import sys
+import random
 
 PROBS = {
 
@@ -139,6 +140,55 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone in set `have_trait` has the trait, and
         * everyone not in set` have_trait` does not have the trait.
     """
+#    print('people')
+ #   print(people)
+#    {
+ #       'Harry': {'name': 'Harry', 'mother': 'Lily', 'father': 'James', 'trait': {}, 'gene': {}},
+  #      'James': {'name': 'James', 'mother': None, 'father': None, 'trait': True, 'gene': {2: 0.01, 1: 0.03, 0: 0.96}},
+   #     'Lily': {'name': 'Lily', 'mother': None, 'father': None, 'trait': False, 'gene': {2: 0.01, 1: 0.03, 0: 0.96}}
+    #}
+    new_people = {k: v for k, v in people.items()}
+
+    # set up the structure
+    for _, data in new_people.items():
+        data['gene'] = dict()
+        if data.get('trait') is None:
+            data['trait'] = dict()
+
+    # names that we won't calculate the conditional probability of gene or trait for 
+    names_to_exclude = {}
+
+    # calculate probabilities of genes for people who has the info about trait
+    for name, data in new_people.items():
+        trait_value = data['trait']
+        if trait_value != {}:
+            print(f'Adding gene probabilities basing on "Trait" for {name}.')
+            for gene, trait in PROBS['trait'].items():
+                data['gene'][gene] = trait[trait_value]
+
+    # add unconditional probabilities if no information about parents and no trait information
+    for name, data in new_people.items():
+        if (data['mother'] is None or data['father'] is None) and data['trait'] == {}:
+            print(f'Adding gene unconditional probabilities for {name}.')
+            for k, v in PROBS['gene'].items():
+                data['gene'][k] = v
+
+    print(new_people)
+
+#    print('one_gene')
+ #   print(one_gene)
+  #  set()
+
+#    print('two_genes')
+ #   print(two_genes)
+  #  set()
+
+#    print('have_trait')
+ #   print(have_trait)
+  #  {'James'}
+
+
+
     raise NotImplementedError
 
 
@@ -149,6 +199,9 @@ def update(probabilities, one_gene, two_genes, have_trait, p):
     Which value for each distribution is updated depends on whether
     the person is in `have_gene` and `have_trait`, respectively.
     """
+ #   print('probabilities')
+  #  print(probabilities)
+
     raise NotImplementedError
 
 
